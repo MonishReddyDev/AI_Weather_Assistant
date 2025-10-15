@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AI Weather Assistant</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family: "Quicksand", sans-serif;
+        background: linear-gradient(135deg, #a1c4fd, #c2e9fb);
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 1rem;
+      }
+
+      .container {
+        background: #fff;
+        border-radius: 20px;
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+        padding: 2.5rem 2rem;
+        width: 100%;
+        max-width: 500px;
+        text-align: center;
+        transition: transform 0.3s ease;
+      }
+
+      .container:hover {
+        transform: translateY(-5px);
+      }
+
+      h1 {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #1e3a8a;
+        margin-bottom: 2rem;
+      }
+
+      input[type="text"] {
+        width: 100%;
+        padding: 0.8rem 1rem;
+        border-radius: 12px;
+        border: 1px solid #ccc;
+        font-size: 1rem;
+        margin-bottom: 1.5rem;
+        transition: all 0.3s ease;
+      }
+
+      input[type="text"]:focus {
+        outline: none;
+        border-color: #1e3a8a;
+        box-shadow: 0 0 10px rgba(30, 58, 138, 0.3);
+      }
+
+      button {
+        width: 100%;
+        padding: 0.8rem 1rem;
+        border-radius: 12px;
+        border: none;
+        background: #1e3a8a;
+        color: #fff;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.3s ease, transform 0.2s ease;
+      }
+
+      button:hover {
+        background: #3b82f6;
+        transform: translateY(-2px);
+      }
+
+      .response {
+        margin-top: 1.5rem;
+        padding: 1rem;
+        background: #f3f4f6;
+        border-radius: 12px;
+        min-height: 60px;
+        font-size: 1rem;
+        color: #111827;
+        white-space: pre-wrap;
+        border: 1px solid #e5e7eb;
+        transition: background 0.3s ease;
+      }
+
+      .response.loading {
+        background: #e0f2fe;
+        color: #1e3a8a;
+        font-weight: 600;
+      }
+
+      footer {
+        margin-top: 2rem;
+        font-size: 0.8rem;
+        color: #6b7280;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>AI Weather Assistant</h1>
+      <input type="text" id="question" placeholder="Ask about the weather..." />
+      <button id="askBtn">Ask AI</button>
+      <div id="response" class="response">
+        Your AI response will appear here...
+      </div>
+      <footer>Powered by OpenAI & OpenWeather API</footer>
+    </div>
+
+    <script>
+      const askBtn = document.getElementById("askBtn");
+      const questionInput = document.getElementById("question");
+      const responseDiv = document.getElementById("response");
+
+      askBtn.addEventListener("click", async () => {
+        const question = questionInput.value.trim();
+        if (!question) {
+          responseDiv.textContent = "Please enter a question!";
+          return;
+        }
+
+        responseDiv.textContent = "Thinking...";
+        responseDiv.classList.add("loading");
+
+        try {
+          const res = await fetch(
+            `/ask?question=${encodeURIComponent(question)}`
+          );
+          const data = await res.json();
+          responseDiv.textContent = data.answer || "No response from AI.";
+        } catch (err) {
+          responseDiv.textContent = "Error connecting to the AI backend.";
+          console.error(err);
+        } finally {
+          responseDiv.classList.remove("loading");
+        }
+      });
+
+      questionInput.addEventListener("keypress", (e) => {
+        if (e.key === "Enter") askBtn.click();
+      });
+    </script>
+  </body>
+</html>
