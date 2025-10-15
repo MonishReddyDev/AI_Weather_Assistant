@@ -22,7 +22,7 @@ import { fileURLToPath } from 'url';
 // Limit to 2 requests per hour per IP
 const limiter = rateLimit({
     windowMs: 60 * 60 * 1000, // 1 hour
-    max: 2, // max 2 requests
+    max: 3, // max 2 requests
     message: {
         error: "Too many requests from this IP, please try again after an hour."
     },
