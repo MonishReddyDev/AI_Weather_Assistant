@@ -3,6 +3,8 @@ import OpenAI from "openai";
 import dotenv from "dotenv";
 dotenv.config();
 import fetch from "node-fetch";
+import rateLimit from "express-rate-limit";
+
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -12,8 +14,21 @@ const WEATHER_API_KEY = process.env.WEATHER_API_KEY;
 
 const OpenAI_Client = new OpenAI({ apiKey: OPENAI_API_KEY });
 
+
 import path from 'path';
 import { fileURLToPath } from 'url';
+
+
+// Limit to 2 requests per hour per IP
+const limiter = rateLimit({
+    windowMs: 60 * 60 * 1000, // 1 hour
+    max: 2, // max 2 requests
+    message: {
+        error: "Too many requests from this IP, please try again after an hour."
+    },
+    standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+    legacyHeaders: false, // Disable `X-RateLimit-*` headers
+});
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -70,7 +85,7 @@ Always respond in this JSON format:
 `;
 
 // ----------------- API Endpoint -----------------
-app.get("/ask", async (req, res) => {
+app.get("/ask", limiter, async (req, res) => {
     const userQuestion = req.query.question;
     if (!userQuestion) return res.status(400).json({ error: "Question is required" });
 
